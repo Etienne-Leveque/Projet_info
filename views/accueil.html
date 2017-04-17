@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Page de connection</title>
+        <link href="/views/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/views/css/style.css" rel="stylesheet">
+    </head>
+ 
+    <body>
+
+        <section class="formulaire" id="connection">
+
+            <h1>Connectez-vous :</h1>
+
+            <div class="row">
+
+              <div class="col-sm-3">
+
+                <form action="/log_in" method="post" id="formulaire_connection">
+                    <div class="form-group">
+                        <label for="pseudo_connection">Pseudo :</label><br />
+                        <input type="text" class="form-control" name="pseudo_connection" id="pseudo_connection" placeholder="Votre pseudo..." size="20" maxlength="40"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="pass_connection">Mot de passe :</label><br />
+                        <input type="password" class="form-control" name="pass_connection" id="pass_connection" placeholder="Votre mot de passe..." size="20"/>
+                    </div>
+
+                        <input class="btn btn-default" type="submit" id="envoi_connection" value="Envoyer" />
+                </form>
+              </div>
+            </div>
+            <p> Pas encore inscrit ? <a id="reveler_inscription">s'inscrire</a></p>
+
+        </section>
+
+        <section class="formulaire" id="inscription">
+
+            <h1>Inscrivez-vous :</h1>
+
+              <div class="row">
+
+                <div class="col-sm-3">
+
+                <form action="/register_member" method="post" id="formulaire_inscription">
+                    <div class="form-group">
+                        <label for="pseudo">Pseudo :</label>
+                        <input type="text" class="form-control" name="pseudo" id="pseudo" placeholder="Votre pseudo..." size="20" maxlength="40"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pass">Mot de passe (au moins 8 caractères) :</label>
+                        <input type="password" class="form-control" name="pass" id="pass" placeholder="Votre mot de passe..." size="20"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmation_pass">Confirmez votre mot de passe :</label>
+                        <input type="password" class="form-control" name="confirmation_pass" id="confirmation_pass" placeholder="Votre mot de passe..." size="20"/>
+                    </div>
+
+                        <input class="btn btn-default" type="submit" id="envoi_inscription" value="Envoyer" />  
+
+                </form>
+              </div>
+            </div>
+            <p> Déjà inscrit ? <a id="reveler_connection">se connecter</a></p>
+
+        </section>
+
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            // Connexion à socket.io
+            var socket = io.connect('/register_socket');
+
+            $('#reveler_inscription').click(function() {
+              $('#inscription').show();
+              $('#connection').hide();
+            });
+            $('#reveler_connection').click(function() {
+              $('#inscription').hide();
+              $('#connection').show();
+            });
+
+            var $champ = $('.champ'),
+                $pseudo = $('#pseudo'),
+                $pass = $('#pass'),
+                $confirmation_pass = $('#confirmation_pass'),
+                inscription_valide = new Object();
+
+
+            // On vérifie si le pseudo est valide
+            $pseudo.keyup(function(){
+                socket.emit('verifier_pseudo', $pseudo.val());
+                socket.on('verifier_pseudo', function(data) {
+                    if ( (data === true) || ($('#pseudo').val().length < 4) ) {
+                        $('#pseudo').css({ // on rend le champ rouge
+                            borderColor : 'red',
+                            color : 'red'
+                        });
+                        inscription_valide.pseudo = false;
+                    }
+                    else{
+                        $('#pseudo').css({ // si tout est bon, on le rend vert
+                            borderColor : 'green',
+                            color : 'green'
+                        });
+                        inscription_valide.pseudo = true;
+                    }
+                });
+            });
+
+            
+
+            //On vérifie si le mot de passe est assez long
+            $pass.keyup(function(){
+                if($(this).val().length < 8){ // si la chaîne de caractères est inférieure à 8
+                    $(this).css({ // on rend le champ rouge
+                        borderColor : 'red',
+                        color : 'red'
+                    });
+                    inscription_valide.passLenght = false;
+                }
+                 else{
+                     $(this).css({ // si tout est bon, on le rend vert
+                        borderColor : 'green',
+                        color : 'green'
+                    });
+                    inscription_valide.passLenght = true;
+                }
+            });
+
+            // On verifie si les mots de passe sont identiques
+            $confirmation_pass.keyup(function(){
+                if($(this).val() != $pass.val()){ // si la confirmation est différente du mot de passe
+                    $(this).css({ // on rend le champ rouge
+                        borderColor : 'red',
+                        color : 'red'
+                    });
+                    inscription_valide.pass = false;
+                }
+                else{
+                    $(this).css({ // si tout est bon, on le rend vert
+                        borderColor : 'green',
+                        color : 'green'
+                    });
+                    inscription_valide.pass = true;
+                }
+            });
+
+
+            $('#formulaire_inscription').submit(function () {
+
+                console.log(inscription_valide);
+
+                if (inscription_valide.pass && inscription_valide.pseudo && inscription_valide.passLenght) {
+                    // On transmet le pseudo dans la base de données
+                }
+
+                else {
+                    $('#pseudo').val('').attr('placeholder','Try again').focus(); // Vide le formulaire et remet le focus dessus
+                    $('#pass').attr('placeholder','Votre mot de pass...').val('');
+                    $('#confirmation_pass').attr('placeholder','Votre mot de passe...').val('');
+                    return false; // Permet de bloquer l'envoi "classique" du formulaire
+                }
+            });
+
+        </script>
+
+    </body>
+</html>

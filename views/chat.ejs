@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Chat</title>
+        <link href="/views/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/views/css/style.css" rel="stylesheet">
+
+
+    </head>
+ 
+    <body>
+        <section class="formulaire">
+
+            <h1>Bienvenue <%= login %></h1>
+
+            <div id="zone_chat">
+                
+            </div>
+
+            <ul>
+            <% message.forEach(function(data, index) { %>
+                <li><%= message[index].from_pseudo %> (<%= message[index].date_message %>): <%= message[index].message %></li>
+            <% }); %>
+            </ul>
+
+            
+
+            <form action="/poster_message" method="post" id="formulaire_chat">
+                <div class="row">
+                    <div class="form-group col-sm-3">
+                        <label for="message">Message : </label> 
+                        <input class="form-control" autocomplete="off" type="text" name="message" id="message" placeholder="Votre message..." autofocus />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-2">
+                        <label for='to_pseudo'>Destinataire</label>
+                        <input class="form-control" type="text" name="to_pseudo" id="to_pseudo" placeholder="Destinataire"/>
+                    </div>
+                </div>
+                    <button class="btn btn-default" type="submit" id="envoi_message">Envoyer</button>
+            </form>
+
+            <p> Se déconnecter ? <a href="/log_out">log out</a></p>
+
+        </section>
+
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            // Connexion à socket.io
+            var socket = io.connect('/chat_socket');
+
+            socket.on('nouvelle_connection', function(pseudo) {
+            $('#zone_chat').prepend('<p><em>' + pseudo + ' a rejoint le Chat !</em></p>');
+            })
+
+        </script>
+
+    </body>
+</html>

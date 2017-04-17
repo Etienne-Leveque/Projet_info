@@ -1,8 +1,0 @@
-INDEX VERSION 1.3+Z:\workspace-herrera2\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
-3725881793.index
-2036008048.index
-3133501423.index
-918719897.index
-3921820233.index
-2796272813.index
-2579099568.index
